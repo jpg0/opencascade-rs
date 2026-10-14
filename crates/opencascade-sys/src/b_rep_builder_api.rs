@@ -43,6 +43,11 @@ mod inner {
             p2: &gp_Pnt,
         ) -> UniquePtr<BRepBuilderAPI_MakeEdge>;
         #[cxx_name = "construct_unique"]
+        pub fn BRepBuilderAPI_MakeEdge_vertex_vertex(
+            vertex_1: &TopoDS_Vertex,
+            vertex_2: &TopoDS_Vertex,
+        ) -> UniquePtr<BRepBuilderAPI_MakeEdge>;
+        #[cxx_name = "construct_unique"]
         pub fn BRepBuilderAPI_MakeEdge_CurveSurface2d(
             curve_handle: &Handle_Geom2d_Curve,
             surface_handle: &Handle_Geom_Surface,
