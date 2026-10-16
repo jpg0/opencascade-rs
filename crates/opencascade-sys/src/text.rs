@@ -23,6 +23,8 @@ mod inner {
         pub fn LineSpacing(self: &OcvTextBuilder) -> f64;
         #[rust_name = "scale"]
         pub fn Scale(self: &OcvTextBuilder) -> f64;
+        #[rust_name = "uses_unicode_subset_fallback"]
+        pub fn UsesUnicodeSubsetFallback(self: &OcvTextBuilder) -> bool;
         #[rust_name = "advance_x"]
         pub fn AdvanceX(self: Pin<&mut OcvTextBuilder>, character: u32, next: u32) -> f64;
         #[rust_name = "perform"]
