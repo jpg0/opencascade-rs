@@ -34,6 +34,7 @@ pub mod standard;
 pub mod step_control;
 pub mod stl_api;
 pub mod t_col_gp;
+pub mod text;
 pub mod top_abs;
 pub mod top_exp;
 pub mod top_loc;

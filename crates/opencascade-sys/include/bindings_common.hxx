@@ -1,22 +1,25 @@
 #pragma once
 #include "rust/cxx.h"
 #include <NCollection_List.hxx>
-#include <memory>
 #include <Standard_Version.hxx>
-#include <TopTools_ListOfShape.hxx>
-#include <TColgp_Array1OfPnt2d.hxx>
-#include <TColgp_Array2OfPnt.hxx>
-#include <TColgp_Array1OfPnt.hxx>
-#include <TColgp_Array1OfVec.hxx>
-#include <TColgp_Array1OfDir.hxx>
-#include <TColStd_Array1OfReal.hxx>
 #include <TColStd_Array1OfInteger.hxx>
+#include <TColStd_Array1OfReal.hxx>
 #include <TColStd_Array2OfReal.hxx>
+#include <TColgp_Array1OfDir.hxx>
+#include <TColgp_Array1OfPnt.hxx>
+#include <TColgp_Array1OfPnt2d.hxx>
+#include <TColgp_Array1OfVec.hxx>
 #include <TColgp_Array1OfXYZ.hxx>
-#include <TopTools_IndexedMapOfShape.hxx>
+#include <TColgp_Array2OfPnt.hxx>
 #include <TopTools_IndexedDataMapOfShapeListOfShape.hxx>
+#include <TopTools_IndexedMapOfShape.hxx>
+#include <TopTools_ListOfShape.hxx>
+#include <memory>
 
 #if OCC_VERSION_MAJOR >= 8
+#include <Geom2d_Curve.hxx>
+#include <Geom2d_Ellipse.hxx>
+#include <Geom2d_TrimmedCurve.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <Geom_BezierSurface.hxx>
@@ -24,9 +27,6 @@
 #include <Geom_Plane.hxx>
 #include <Geom_Surface.hxx>
 #include <Geom_TrimmedCurve.hxx>
-#include <Geom2d_Curve.hxx>
-#include <Geom2d_Ellipse.hxx>
-#include <Geom2d_TrimmedCurve.hxx>
 #include <Law_Function.hxx>
 #include <Poly_Triangulation.hxx>
 #include <Standard_Type.hxx>
