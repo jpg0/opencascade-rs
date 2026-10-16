@@ -19,10 +19,12 @@ pub fn occt_path() -> PathBuf {
 /// Build the OCCT library.
 pub fn build_occt() {
     cmake::Config::new(Path::new(env!("OCCT_SRC_DIR")))
-        .define("BUILD_PATCH", Path::new(env!("OCCT_PATCH_DIR")))
         .define("BUILD_LIBRARY_TYPE", "Static")
         .define("BUILD_MODULE_ApplicationFramework", "FALSE")
         .define("BUILD_MODULE_Draw", "FALSE")
+        .define("BUILD_MODULE_Visualization", "FALSE")
+        .define("BUILD_MODULE_DETools", "FALSE")
+        .define("BUILD_DOC_Overview", "FALSE")
         .define("USE_D3D", "FALSE")
         .define("USE_DRACO", "FALSE")
         .define("USE_EIGEN", "FALSE")

@@ -21,7 +21,7 @@ mod inner {
             self: Pin<&mut TopTools_ListOfShape>,
             face: &TopoDS_Shape,
         ) -> Pin<&mut TopoDS_Shape>;
-        pub fn Size(self: &TopTools_ListOfShape) -> i32;
+        pub fn Size(self: &TopTools_ListOfShape) -> usize;
 
         type TopTools_IndexedMapOfShape;
         #[cxx_name = "construct_unique"]

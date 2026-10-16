@@ -1,7 +1,7 @@
 /// Minimum compatible version of OpenCASCADE library (major, minor)
 ///
 /// Pre-installed OpenCASCADE library will be checked for compatibility using semver rules.
-const OCCT_VERSION: (u8, u8) = (7, 8);
+const OCCT_VERSION: (u8, u8) = (8, 0);
 
 /// The list of used OpenCASCADE libraries which needs to be linked with.
 const OCCT_LIBS: &[&str] = &[
@@ -107,7 +107,7 @@ fn main() {
 
     build
         .cpp(true)
-        .flag_if_supported("-std=c++11")
+        .flag_if_supported("-std=c++17")
         .define("_USE_MATH_DEFINES", "TRUE")
         .include(occt_config.include_dir)
         .include("include")
@@ -172,7 +172,7 @@ impl OcctConfig {
         if let (Some(version_major), Some(version_minor), Some(include_dir), Some(library_dir)) =
             (version_major, version_minor, include_dir, library_dir)
         {
-            if version_major != OCCT_VERSION.0 || version_minor < OCCT_VERSION.1 {
+            if (version_major, version_minor) < OCCT_VERSION {
                 #[cfg(feature = "builtin")]
                 panic!("Builtin OpenCASCADE library found but version is not met (found {}.{} but {}.{} required). Please fix OCCT_VERSION in build script of `opencascade-sys` crate or submodule OCCT in `occt-sys` crate.",
                        version_major, version_minor, OCCT_VERSION.0, OCCT_VERSION.1);

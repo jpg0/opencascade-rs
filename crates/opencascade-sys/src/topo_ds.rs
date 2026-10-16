@@ -10,6 +10,7 @@ mod inner {
         type TopAbs_Orientation = crate::top_abs::TopAbs_Orientation;
         type TopTools_ListOfShape = crate::top_tools::TopTools_ListOfShape;
 
+        #[cxx_name = "TopoDSStatics"]
         type TopoDS;
         #[Self = "TopoDS"]
         pub fn Vertex(shape: &TopoDS_Shape) -> &TopoDS_Vertex;
