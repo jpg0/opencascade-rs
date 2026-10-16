@@ -29,6 +29,29 @@ pub fn freetype_path() -> PathBuf {
     occt_path().with_file_name("freetype")
 }
 
+/// The names FreeType's install rule produces for its archive, in the order they
+/// are checked: `libfreetype.a` from Makefiles and MinGW, `freetype.lib` from
+/// MSVC, each with a `d` suffix when FreeType was built as a Debug one.
+const FREETYPE_ARCHIVE_NAMES: &[&str] =
+    &["libfreetype.a", "libfreetyped.a", "freetype.lib", "freetyped.lib"];
+
+/// Resolve the archive FreeType installed, whatever it is called on this
+/// platform, rather than assuming the Unix name.
+fn freetype_archive(prefix: &Path) -> PathBuf {
+    let lib_dir = prefix.join("lib");
+    for name in FREETYPE_ARCHIVE_NAMES {
+        let candidate = lib_dir.join(name);
+        if candidate.is_file() {
+            return candidate;
+        }
+    }
+    panic!(
+        "FreeType built into {} produced no library archive; looked for {}",
+        lib_dir.display(),
+        FREETYPE_ARCHIVE_NAMES.join(", ")
+    );
+}
+
 /// Build a static FreeType from source.
 ///
 /// Only the font formats a plain TrueType/OpenType face needs are compiled in:
@@ -59,12 +82,7 @@ fn build_freetype() -> PathBuf {
         .profile("Release")
         .out_dir(&prefix)
         .build();
-    assert!(
-        prefix.join("lib").join("libfreetype.a").is_file(),
-        "FreeType built from {} did not produce libfreetype.a in {}",
-        source.display(),
-        prefix.join("lib").display()
-    );
+    freetype_archive(&prefix);
     prefix
 }
 
@@ -91,6 +109,7 @@ fn assert_occt_uses_freetype() {
 pub fn build_occt() {
     let freetype = build_freetype();
     let freetype_include = freetype.join("include").join("freetype2");
+    let freetype_library = freetype_archive(&freetype);
     cmake::Config::new(Path::new(env!("OCCT_SRC_DIR")))
         .define("BUILD_LIBRARY_TYPE", "Static")
         .define("BUILD_MODULE_ApplicationFramework", "FALSE")
@@ -107,7 +126,7 @@ pub fn build_occt() {
         .define("3RDPARTY_FREETYPE_DIR", &freetype)
         .define("3RDPARTY_FREETYPE_INCLUDE_DIR_ft2build", &freetype_include)
         .define("3RDPARTY_FREETYPE_INCLUDE_DIR_freetype2", &freetype_include)
-        .define("3RDPARTY_FREETYPE_LIBRARY", freetype.join("lib").join("libfreetype.a"))
+        .define("3RDPARTY_FREETYPE_LIBRARY", &freetype_library)
         .define("3RDPARTY_FREETYPE_LIBRARY_DIR", freetype.join("lib"))
         .define("USE_GLES2", "FALSE")
         .define("USE_OPENGL", "FALSE")

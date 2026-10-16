@@ -49,29 +49,39 @@ public:
   OcvTextBuilder() = default;
 
   bool InitFont(const rust::Slice<const uint8_t> theData, const double theTextHeight) {
-    myFont = new OcvTextFont();
-    return myFont->InitFromMemory(theData, theTextHeight);
+    occ::handle<OcvTextFont> aFont = new OcvTextFont();
+    if (!aFont->InitFromMemory(theData, theTextHeight)) {
+      return false;
+    }
+    myFont = aFont;
+    return true;
   }
 
   bool IsReady() const { return !myFont.IsNull() && !myFont->FTFont().IsNull() && myFont->FTFont()->IsValid(); }
 
-  double Ascender() const { return myFont->Ascender(); }
+  //! Metrics and geometry are zero or absent until a font has been installed;
+  //! the caller knows whether that worked from InitFont, and nothing here can
+  //! reach a FreeType face that failed to load.
+  double Ascender() const { return IsReady() ? myFont->Ascender() : 0.0; }
 
-  double Descender() const { return myFont->Descender(); }
+  double Descender() const { return IsReady() ? myFont->Descender() : 0.0; }
 
-  double LineSpacing() const { return myFont->LineSpacing(); }
+  double LineSpacing() const { return IsReady() ? myFont->LineSpacing() : 0.0; }
 
-  double Scale() const { return myFont->Scale(); }
+  double Scale() const { return IsReady() ? myFont->Scale() : 0.0; }
 
   double AdvanceX(const uint32_t theChar, const uint32_t theNext) {
-    return myFont->AdvanceX(char32_t(theChar), char32_t(theNext));
+    return IsReady() ? myFont->AdvanceX(char32_t(theChar), char32_t(theNext)) : 0.0;
   }
 
   bool Perform(const rust::Str theText) {
-    if (myFont.IsNull()) {
+    if (!IsReady()) {
       return false;
     }
     const std::string aText(theText.data(), theText.size());
+    if (aText.find('\0') != std::string::npos) {
+      return false;
+    }
     StdPrs_BRepTextBuilder aBuilder;
     myShape = aBuilder.Perform(*myFont, NCollection_String(aText.c_str()), gp_Ax3());
     const TopoDS_Iterator anIterator(myShape);
