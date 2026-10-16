@@ -27,6 +27,10 @@ mod inner {
         pub fn AdvanceX(self: Pin<&mut OcvTextBuilder>, character: u32, next: u32) -> f64;
         #[rust_name = "perform"]
         pub fn Perform(self: Pin<&mut OcvTextBuilder>, text: &str) -> bool;
+        #[rust_name = "perform_centered"]
+        pub fn PerformCentered(self: Pin<&mut OcvTextBuilder>, text: &str) -> bool;
+        #[rust_name = "perform_right"]
+        pub fn PerformRight(self: Pin<&mut OcvTextBuilder>, text: &str) -> bool;
         #[rust_name = "shape"]
         pub fn Shape(self: &OcvTextBuilder) -> &TopoDS_Shape;
     }

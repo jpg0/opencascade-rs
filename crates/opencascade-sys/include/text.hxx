@@ -1,4 +1,6 @@
 #include <Font_FTFont.hxx>
+#include <Graphic3d_HorizontalTextAlignment.hxx>
+#include <Graphic3d_VerticalTextAlignment.hxx>
 #include <NCollection_Buffer.hxx>
 #include <NCollection_String.hxx>
 #include <Standard_Handle.hxx>
@@ -74,7 +76,18 @@ public:
     return IsReady() ? myFont->AdvanceX(char32_t(theChar), char32_t(theNext)) : 0.0;
   }
 
-  bool Perform(const rust::Str theText) {
+  bool Perform(const rust::Str theText) { return performAligned(theText, Graphic3d_HTA_LEFT); }
+
+  //! Centred and right-aligned variants; OCCT lays each line out from advances,
+  //! so these are per line rather than about the block's ink box.
+  bool PerformCentered(const rust::Str theText) { return performAligned(theText, Graphic3d_HTA_CENTER); }
+
+  bool PerformRight(const rust::Str theText) { return performAligned(theText, Graphic3d_HTA_RIGHT); }
+
+  const TopoDS_Shape &Shape() const { return myShape; }
+
+private:
+  bool performAligned(const rust::Str theText, const Graphic3d_HorizontalTextAlignment theAlignment) {
     if (!IsReady()) {
       return false;
     }
@@ -83,14 +96,12 @@ public:
       return false;
     }
     StdPrs_BRepTextBuilder aBuilder;
-    myShape = aBuilder.Perform(*myFont, NCollection_String(aText.c_str()), gp_Ax3());
+    myShape =
+        aBuilder.Perform(*myFont, NCollection_String(aText.c_str()), gp_Ax3(), theAlignment, Graphic3d_VTA_BOTTOM);
     const TopoDS_Iterator anIterator(myShape);
     return anIterator.More();
   }
 
-  const TopoDS_Shape &Shape() const { return myShape; }
-
-private:
   occ::handle<OcvTextFont> myFont;
   TopoDS_Shape myShape;
 };
