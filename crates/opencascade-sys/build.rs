@@ -4,7 +4,12 @@
 const OCCT_VERSION: (u8, u8) = (8, 0);
 
 /// The list of used OpenCASCADE libraries which needs to be linked with.
+///
+/// Toolkits that depend on others come first, since a static link only pulls the
+/// archive members that resolve something already undefined.
 const OCCT_LIBS: &[&str] = &[
+    "TKV3d",
+    "TKService",
     "TKMath",
     "TKernel",
     "TKDE",
@@ -87,6 +92,7 @@ fn main() {
         "src/step_control.rs",
         "src/stl_api.rs",
         "src/t_col_gp.rs",
+        "src/text.rs",
         "src/top_abs.rs",
         "src/top_exp.rs",
         "src/top_loc.rs",
@@ -134,8 +140,12 @@ impl OcctConfig {
         // Add path to builtin OCCT
         #[cfg(feature = "builtin")]
         {
+            println!("cargo:rerun-if-env-changed={}", occt_sys::FREETYPE_DIR_ENV);
             occt_sys::build_occt();
             std::env::set_var("DEP_OCCT_ROOT", occt_sys::occt_path().as_os_str());
+            let freetype = occt_sys::freetype_path();
+            println!("cargo:rustc-link-search=native={}", freetype.join("lib").to_str().unwrap());
+            println!("cargo:rustc-link-lib=static=freetype");
         }
 
         let dst =
