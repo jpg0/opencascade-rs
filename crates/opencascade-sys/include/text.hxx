@@ -33,6 +33,11 @@ public:
     }
     std::memcpy(myBuffer->ChangeData(), theData.data(), theData.size());
     myFTFont = new Font_FTFont();
+    //! A missing glyph must be the font's own .notdef, never a system font:
+    //! OCCT's Unicode-subset fallback resolves through Font_FontMgr's machine
+    //! font database, so the geometry would depend on what the host has
+    //! installed, and that singleton is not safe to share between threads.
+    myFTFont->SetUseUnicodeSubsetFallback(false);
     return myFTFont->Init(myBuffer, "openvcad.ttf", Font_FTFontParams(THE_FONT_SIZE, THE_RESOLUTION_DPI), 0);
   }
 
@@ -71,6 +76,12 @@ public:
   double LineSpacing() const { return IsReady() ? myFont->LineSpacing() : 0.0; }
 
   double Scale() const { return IsReady() ? myFont->Scale() : 0.0; }
+
+  //! TRUE if this font would consider a fallback face for a missing glyph; it is
+  //! switched off for the installed font, and this is how a test says so.
+  bool UsesUnicodeSubsetFallback() const {
+    return !myFont.IsNull() && !myFont->FTFont().IsNull() && myFont->FTFont()->ToUseUnicodeSubsetFallback();
+  }
 
   double AdvanceX(const uint32_t theChar, const uint32_t theNext) {
     return IsReady() ? myFont->AdvanceX(char32_t(theChar), char32_t(theNext)) : 0.0;
