@@ -33,6 +33,13 @@ mod inner {
         pub fn PerformCentered(self: Pin<&mut OcvTextBuilder>, text: &str) -> bool;
         #[rust_name = "perform_right"]
         pub fn PerformRight(self: Pin<&mut OcvTextBuilder>, text: &str) -> bool;
+        #[rust_name = "perform_aligned"]
+        pub fn PerformAligned(
+            self: Pin<&mut OcvTextBuilder>,
+            text: &str,
+            horizontal: u8,
+            vertical: u8,
+        ) -> bool;
         #[rust_name = "shape"]
         pub fn Shape(self: &OcvTextBuilder) -> &TopoDS_Shape;
     }

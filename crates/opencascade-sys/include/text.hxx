@@ -9,6 +9,7 @@
 #include <TopoDS_Iterator.hxx>
 #include <TopoDS_Shape.hxx>
 #include <bindings_common.hxx>
+#include <cstdint>
 #include <cstring>
 #include <gp_Ax3.hxx>
 #include <string>
@@ -87,18 +88,69 @@ public:
     return IsReady() ? myFont->AdvanceX(char32_t(theChar), char32_t(theNext)) : 0.0;
   }
 
-  bool Perform(const rust::Str theText) { return performAligned(theText, Graphic3d_HTA_LEFT); }
+  bool Perform(const rust::Str theText) {
+    return build(theText, Graphic3d_HTA_LEFT, Graphic3d_VTA_BOTTOM);
+  }
 
   //! Centred and right-aligned variants; OCCT lays each line out from advances,
   //! so these are per line rather than about the block's ink box.
-  bool PerformCentered(const rust::Str theText) { return performAligned(theText, Graphic3d_HTA_CENTER); }
+  bool PerformCentered(const rust::Str theText) {
+    return build(theText, Graphic3d_HTA_CENTER, Graphic3d_VTA_BOTTOM);
+  }
 
-  bool PerformRight(const rust::Str theText) { return performAligned(theText, Graphic3d_HTA_RIGHT); }
+  bool PerformRight(const rust::Str theText) {
+    return build(theText, Graphic3d_HTA_RIGHT, Graphic3d_VTA_BOTTOM);
+  }
+
+  //! Both alignments at once, handed over as plain integers because cxx cannot
+  //! bind an OCCT enum. Each code is its own enum's declaration order, so
+  //! horizontal 0..2 is HTA_LEFT/CENTER/RIGHT and vertical 0..3 is VTA_BOTTOM/
+  //! CENTER/TOP/TOPFIRSTLINE. A code outside those ranges is refused rather than
+  //! defaulted, because either default would silently place the text on an
+  //! anchor nobody asked for.
+  bool PerformAligned(const rust::Str theText, const uint8_t theHAlign, const uint8_t theVAlign) {
+    Graphic3d_HorizontalTextAlignment anAlignX;
+    switch (theHAlign) {
+      case 0:
+        anAlignX = Graphic3d_HTA_LEFT;
+        break;
+      case 1:
+        anAlignX = Graphic3d_HTA_CENTER;
+        break;
+      case 2:
+        anAlignX = Graphic3d_HTA_RIGHT;
+        break;
+      default:
+        return false;
+    }
+
+    Graphic3d_VerticalTextAlignment anAlignY;
+    switch (theVAlign) {
+      case 0:
+        anAlignY = Graphic3d_VTA_BOTTOM;
+        break;
+      case 1:
+        anAlignY = Graphic3d_VTA_CENTER;
+        break;
+      case 2:
+        anAlignY = Graphic3d_VTA_TOP;
+        break;
+      case 3:
+        anAlignY = Graphic3d_VTA_TOPFIRSTLINE;
+        break;
+      default:
+        return false;
+    }
+
+    return build(theText, anAlignX, anAlignY);
+  }
 
   const TopoDS_Shape &Shape() const { return myShape; }
 
 private:
-  bool performAligned(const rust::Str theText, const Graphic3d_HorizontalTextAlignment theAlignment) {
+  bool build(const rust::Str theText,
+             const Graphic3d_HorizontalTextAlignment theAlignX,
+             const Graphic3d_VerticalTextAlignment theAlignY) {
     if (!IsReady()) {
       return false;
     }
@@ -108,7 +160,7 @@ private:
     }
     StdPrs_BRepTextBuilder aBuilder;
     myShape =
-        aBuilder.Perform(*myFont, NCollection_String(aText.c_str()), gp_Ax3(), theAlignment, Graphic3d_VTA_BOTTOM);
+        aBuilder.Perform(*myFont, NCollection_String(aText.c_str()), gp_Ax3(), theAlignX, theAlignY);
     const TopoDS_Iterator anIterator(myShape);
     return anIterator.More();
   }
